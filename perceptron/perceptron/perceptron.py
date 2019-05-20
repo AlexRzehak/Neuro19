@@ -36,9 +36,10 @@ class Perceptron:
         self._dimension = dimension
 
         # random initialization of weights between -0.1 and 0.1:
-        
+
         # TODO
-        self._weights = np.matrix(np.random.uniform(-0.1, 0.1, (self._dimension, 1)))
+        self._weights = np.matrix(
+            np.random.uniform(-0.1, 0.1, (self._dimension, 1)))
         # self._weights = np.zeros([self._dimension])
 
         # Bias that has to be added to the activation. It is to the negative of the bias introduced in chapter 6.2
@@ -54,7 +55,7 @@ class Perceptron:
         # TODO
         network_input = input_ * self._weights + self._bias_weight
 
-        return np.heaviside(network_input, 1)
+        return np.heaviside(network_input, 1)[0, 0]
 
     def _train_pattern(self, input_: np.matrix, target: int, lr: float):
         """
@@ -69,6 +70,7 @@ class Perceptron:
         prediction = self.predict(input_)
         deltas = lr * input_ * (target - prediction)
         self._weights = self._weights + deltas
+        self._bias_weight = lr * (target - prediction) + self._bias_weight
         pass
 
     def train(self, input_vectors: np.matrix, targets: np.array, iterations: int, lr: float) -> list:
@@ -84,9 +86,18 @@ class Perceptron:
         :param lr:
         :return: average error ratio for every iteration
         """
-
         # TODO
-        return [0]*iterations
+        results = []
+        for _ in range(iterations):
+            predictions = np.apply_along_axis(self.predict, 1, input_vectors)
+            error_number = np.sum(predictions.T != targets)
+            error_ratio = error_number / targets.size
+            results.append(error_ratio)
+
+            for i in range(targets.size):
+                self._train_pattern(input_vectors[i, :], targets[i], lr)
+
+        return results
 
 
 def read_double_array(filename) -> np.array:
@@ -125,6 +136,7 @@ def main():
     perceptron = Perceptron(np.size(input_vectors[0]))
 
     errors = perceptron.train(input_vectors, targets, args.iterations, args.lr)
+    print(errors)
 
 
 if __name__ == "__main__":

@@ -8,11 +8,21 @@ a = np.matrix([1, 2, 3, 4])
 print(a)
 b = np.matrix('1; -2; 3; 4')
 print(b)
+f = np.array([1, 2, 2, 4])
+print(f)
 
-print(a*b)
+print(np.sum(b.T == f))
+# print(a*b)
 
-print(a * 5)
+print(os.getcwd())
+open('orinput.txt')
+
+# print(a * 5)
 # print(np.heaviside(b, 1))
+
+# c = np.matrix([0.5])
+# print('hans')
+# print(np.heaviside(c, 1))
 
 # c = read_double_matrix("xorinput.txt")
 
