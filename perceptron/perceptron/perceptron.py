@@ -1,5 +1,5 @@
 """
-Group: ---> (FILL IN YOUR NAMES) <---
+Group: ---> (Alexander Rzehak, Aydeniz Soezbilir) <---
 
 
 Your tasks:
@@ -36,11 +36,11 @@ class Perceptron:
         self._dimension = dimension
 
         # random initialization of weights between -0.1 and 0.1:
-
-        # TODO
+        # INSERTED CODE:
+        # we generate an np.array of uniformly distributed random numbers.
+        # this array needs to be cast to np.matrix to perform algebra correctly.
         self._weights = np.matrix(
             np.random.uniform(-0.1, 0.1, (self._dimension, 1)))
-        # self._weights = np.zeros([self._dimension])
 
         # Bias that has to be added to the activation. It is to the negative of the bias introduced in chapter 6.2
         # It can, but doesn't have to be learned to solve this task.
@@ -52,9 +52,12 @@ class Perceptron:
         :param input_: input vector
         :return: network output (1 or 0)
         """
-        # TODO
+        # INSERTED CODE:
+        # We treat the bias weight as a bias neuron.
+        # We use matrix multiplication to compute the sum.
         network_input = input_ * self._weights + self._bias_weight
 
+        # Use binary step function as activation function
         return np.heaviside(network_input, 1)[0, 0]
 
     def _train_pattern(self, input_: np.matrix, target: int, lr: float):
@@ -66,10 +69,14 @@ class Perceptron:
         :param target: desired output value (1 or 0)
         :param lr: the learning rate of the percepton learning rule
         """
-        # TODO change bias
+        # INSERTED CODE:
         prediction = self.predict(input_)
+        # The simplified delta rule for networks with one layer.
         deltas = lr * input_ * (target - prediction)
-        self._weights = self._weights + deltas
+        # We transpose the matrix of delta values to match the dimension.
+        self._weights = self._weights + deltas.T
+
+        # Bias training.
         self._bias_weight = lr * (target - prediction) + self._bias_weight
         pass
 
@@ -86,14 +93,17 @@ class Perceptron:
         :param lr:
         :return: average error ratio for every iteration
         """
-        # TODO
+        # CODE INSTERTED:
         results = []
         for _ in range(iterations):
+            # calculate error ratio of current iteration (untrained)
             predictions = np.apply_along_axis(self.predict, 1, input_vectors)
+            # compare predictions of all patterns in the current iteration to desired outputs.
             error_number = np.sum(predictions.T != targets)
             error_ratio = error_number / targets.size
             results.append(error_ratio)
 
+            # online training of each pattern
             for i in range(targets.size):
                 self._train_pattern(input_vectors[i, :], targets[i], lr)
 
@@ -122,6 +132,18 @@ def read_double_matrix(filename):
     return np.matrix(read_double_array(filename))
 
 
+def plot_ratio(error_ratio):
+    """
+    uses matplotlib to visualize the error ratio over the learning process.
+    """
+    plt.figure()
+    plt.plot(error_ratio, 'r')
+    plt.xlabel('Iteration')
+    plt.ylabel('Error Ratio')
+    plt.title('Learning process of single layer perceptron')
+    plt.show()
+
+
 def main():
     parser = argparse.ArgumentParser("perceptron")
     parser.add_argument('inputs', type=str)
@@ -136,7 +158,10 @@ def main():
     perceptron = Perceptron(np.size(input_vectors[0]))
 
     errors = perceptron.train(input_vectors, targets, args.iterations, args.lr)
-    print(errors)
+
+    # CODE INSERTED:
+    plot_ratio(errors)
+    # print(errors)
 
 
 if __name__ == "__main__":
